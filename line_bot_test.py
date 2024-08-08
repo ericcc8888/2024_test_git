@@ -19,6 +19,7 @@ from linebot.v3.webhooks import (
 )
 import os
 import sys
+from flask import Flask, redirect, render_template
 
 
 app = Flask(__name__)
@@ -41,8 +42,15 @@ if channel_access_token is None:
 handler = WebhookHandler(channel_secret)
 configuration = Configuration(access_token=channel_access_token)
 
+#測試是否連通
+@app.route("/")
+def hello_world():
+    items = ['Apple', 'Banana', 'Orange', 'Mango']
+    return render_template("hello.html", name = items)
+
 #設計一個callback的路由,提供給LINE官方後台去呼叫(也就是所謂的webhook server)
 #因為官方會把使用者傳輸的訊息轉傳給webhook server,所以會使用RESTful API 的POST方法
+
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -75,4 +83,4 @@ def handle_message(event):
         )
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
