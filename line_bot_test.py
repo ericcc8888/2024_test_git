@@ -71,11 +71,8 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         
         user_message = event.message.text
-        api_key = os.getenv('OPENAI_API_KEY',None)
-        if api_key and user_message:
-            response = chat_with_chatgpt(user_message, api_key)
-        else:
-            response ="呼叫ChatGPT錯誤,檢檢查"
+        api_key = keys['OPENAI_API_KEY']
+        response = chat_with_chatgpt(user_message, api_key)
 
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(

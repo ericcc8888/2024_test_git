@@ -7,6 +7,7 @@ def get_secret_and_token():
     # 4. 透過以下程式碼，取得環境變數儲存的對應數值。
     channel_secret = os.getenv('LINE_BOT_SECRET', None)
     channel_access_token = os.getenv('LINE_BOT_ACCESS_TOKEN', None)
+    api_key = os.getenv('OPENAI_API_KEY',None)
     if channel_secret is None:
         print('Specify LINEBOT_SECRET_KEY as environment variable.')
         sys.exit(1)
@@ -14,7 +15,12 @@ def get_secret_and_token():
         print('Specify LINEBOT_ACCESS_TOKEN as environment variable.')
         sys.exit(1)
 
+    if api_key is None:
+        print('Specify OPENAI_API_KEY as environment variable.')
+        sys.exit(1)
+
     return {
         'LINE_BOT_SECRET': channel_secret,
-        'LINE_BOT_ACCESS_TOKEN': channel_access_token
+        'LINE_BOT_ACCESS_TOKEN': channel_access_token,
+        'OPENAI_API_KEY':api_key
     }
