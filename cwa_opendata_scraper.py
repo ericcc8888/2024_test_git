@@ -63,7 +63,3 @@ if __name__ == '__main__':
         pprint(get_cities_weather(cwa_api_key, locations))
     else:
         print("Miss API Key.")
-
-
-        FileNotFoundErrorfds
-        
