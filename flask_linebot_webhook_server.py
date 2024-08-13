@@ -24,11 +24,12 @@ from linebot.v3.webhooks import (
 import os
 from handle_keys import get_secret_and_token
 from openai_api import chat_with_chatgpt
+from cwa_opendata_scraper import get_cities_weather
 
 app = Flask(__name__)
 keys = get_secret_and_token()
-handler = WebhookHandler(keys['LINEBOT_SECRET_KEY'])
-configuration = Configuration(access_token=keys['LINEBOT_ACCESS_TOKEN'])
+handler = WebhookHandler(keys['LINE_BOT_SECRET'])
+configuration = Configuration(access_token=keys['LINE_BOT_ACCESS_TOKEN'])
 
 @app.route("/")
 def say_hello_world(username=""):
@@ -68,7 +69,29 @@ def handle_message(event):
     # print("User ID", user_id)
     user_message = event.message.text # 使用者傳過來的訊息
     api_key = keys["OPENAI_API_KEY"]
-    response = chat_with_chatgpt(user_id, user_message, api_key)
+
+    #假定格式:特務P天氣如何 台中市 桃園市 彰化市
+    if '特務P天氣如何' in user_message:
+        cwa_api_key = keys['CWA_API_KEY']
+        locations_name = user_message.split()[1:]
+        if locations_name:
+            weather_data = get_cities_weather(cwa_api_key , locations_name)
+        # 台中市:
+        #     xxx:aaa
+        #     yyy:bbb
+        #     zzz:ccc
+            response = ""
+            for location in weather_data:   #取得每一個縣市名稱
+                response += f"{location}:\n"    #加入縣市名稱訊息到response
+                for weather_key in sorted(weather_data[location]):  #根據縣市名稱取得天氣資訊
+                    response += f"{weather_key}: {weather_data[location][weather_key]}\n"
+            response = response.strip()
+            response = chat_with_chatgpt(
+                user_id , response , api_key , 
+                extra_prompt="請你幫我生出一段報導,根據前面的天氣資訊,建議使用者的穿搭,每個縣市分開,200字以內")
+
+        else:
+            response = "請給我你想知道的縣市,請輸入:特務P天氣如何 臺中市 桃園市 彰化市"
     
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)

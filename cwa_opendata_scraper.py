@@ -1,5 +1,6 @@
 import requests, json, os
 from pprint import pprint
+from handle_keys import get_secret_and_token
 
 weather_element_name = {
     'Wx': '天氣現象',
@@ -57,7 +58,8 @@ def get_city_weather(location):
     return city_weather
 
 if __name__ == '__main__':
-    cwa_api_key = os.getenv("CWA_API_KEY", None)
+    keys = get_secret_and_token()
+    cwa_api_key = keys['CWA_API_KEY']
     locations = ['桃園市', '花蓮縣', '臺中市']
     if cwa_api_key:
         pprint(get_cities_weather(cwa_api_key, locations))
