@@ -1,6 +1,7 @@
 from openai import OpenAI
 import os
 from pprint import pprint
+from handle_keys import get_secret_and_token
 
 
 {
@@ -19,6 +20,7 @@ from pprint import pprint
 }
 
 chat_history = dict()
+keys = get_secret_and_token()
 
 def chat_with_chatgpt(user_id, user_message, openai_api_key, extra_prompt):
     # 利用OpenAI類別，建立一個可以跟OpenAI伺服器互動的物件
@@ -44,7 +46,7 @@ def chat_with_chatgpt(user_id, user_message, openai_api_key, extra_prompt):
     return response if response else "No Content."
 
 if __name__ == '__main__':
-    api_key = os.getenv("OPENAI_API_KEY", None)
+    api_key = keys['OPENAI_API_KEY']
     user_id = "XXX"
     while True:
         user_message = input("請輸入一句話，跟ChatGPT聊天 :")
