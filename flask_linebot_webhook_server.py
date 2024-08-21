@@ -15,11 +15,13 @@ from linebot.v3.messaging import (
     ApiClient,
     MessagingApi,
     ReplyMessageRequest,
-    TextMessage  # 傳輸回Line官方後台的資料格式
+    TextMessage,  # 傳輸回Line官方後台的資料格式
+    ImageMessage
 )
 from linebot.v3.webhooks import (
     MessageEvent, # 傳輸過來的方法
-    TextMessageContent # 使用者傳過來的資料格式
+    TextMessageContent, # 使用者傳過來的資料格式
+    ImageMessageContent
 )
 import os
 from handle_keys import get_secret_and_token
@@ -104,5 +106,34 @@ def handle_message(event):
             )
         )
 
+import requests
+@handler.add(MessageEvent, message=ImageMessageContent)
+def handle_image(event):
+    #取得圖片
+    image_id = event.message.id
+    image_url = f'https://api-data.line.me/v2/bot/message/{image_id}/content'
+    header = {'Authorization': f'Bearer {keys["LINE_BOT_ACCESS_TOKEN"]}'}
+
+    #存圖片
+    response = requests.get(image_url, headers=header)
+    if response.status_code == 200:
+        with open('image_message.jpeg', 'wb') as image_file:
+            image_file.write(response.content)
+        response = 'get image success'
+    else:
+        response = 'get image failed'
+
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        line_bot_api.reply_message_with_http_info(
+            ReplyMessageRequest(
+                reply_token=event.reply_token,
+                messages=[
+                    TextMessage(text=response),
+                    ImageMessage(originalContentUrl="https://static.wikia.nocookie.net/sanrio/images/1/10/Hello-kitty.png",
+                                previewImageUrl="https://static.wikia.nocookie.net/sanrio/images/1/10/Hello-kitty.png")
+                ]
+            )
+        )
 if __name__ == "__main__":
     app.run(debug=True)
